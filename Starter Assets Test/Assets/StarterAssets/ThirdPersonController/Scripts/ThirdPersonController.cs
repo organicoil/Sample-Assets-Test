@@ -73,12 +73,14 @@ public class ThirdPersonController : MonoBehaviour
     private float cinemachineTargetPitch;
 
     // player
+    private const float TERMINAL_VELOCITY = 53.0f;
+    private const float SPEED_OFFSET = 0.1f;
+
     private float speed;
     private float animationBlend;
     private float targetRotation = 0.0f;
     private float rotationVelocity;
     private float verticalVelocity;
-    private float terminalVelocity = 53.0f;
 
     // timeout delta-time
     private float jumpTimeoutDelta;
@@ -98,8 +100,7 @@ public class ThirdPersonController : MonoBehaviour
     private Vector3 Velocity => Controller.velocity;
     private StarterAssetsInputs Input { get; set; }
     private GameObject MainCamera { get; set; }
-    private Transform Transform { get; set; }
-    private Vector3 Position => Transform.position;
+    private Vector3 Position => transform.position;
 
     private bool hasAnimator;
 
@@ -112,7 +113,6 @@ public class ThirdPersonController : MonoBehaviour
         Animator = GetComponent<Animator>();
         Controller = GetComponent<CharacterController>();
         Input = GetComponent<StarterAssetsInputs>();
-        Transform = transform;
 
         hasAnimator = Animator != null;
         AssignAnimationIDs();
@@ -154,70 +154,92 @@ public class ThirdPersonController : MonoBehaviour
     {
         if (grounded)
         {
-            // reset the fall timeout timer
-            fallTimeoutDelta = fallTimeout;
-
-            // update animator if using character
-            if (hasAnimator)
-            {
-                Animator.SetBool(animIDJump, false);
-                Animator.SetBool(animIDFreeFall, false);
-            }
-
-            // stop our velocity dropping infinitely when grounded
-            if (verticalVelocity < 0.0f)
-            {
-                verticalVelocity = -2f;
-            }
-
-            // Jump
-            if (Input.jump && jumpTimeoutDelta <= 0.0f)
-            {
-                // the square root of H * -2 * G = how much velocity needed to reach desired height
-                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-
-                // update animator if using character
-                if (hasAnimator)
-                {
-                    Animator.SetBool(animIDJump, true);
-                }
-            }
-
-            // jump timeout
-            if (jumpTimeoutDelta >= 0.0f)
-            {
-                jumpTimeoutDelta -= Time.deltaTime;
-            }
+            HandleGrounded();
         }
         else
         {
-            // reset the jump timeout timer
-            jumpTimeoutDelta = jumpTimeout;
-
-            // fall timeout
-            if (fallTimeoutDelta >= 0.0f)
-            {
-                fallTimeoutDelta -= Time.deltaTime;
-            }
-            else
-            {
-                // update animator if using character
-                if (hasAnimator)
-                {
-                    Animator.SetBool(animIDFreeFall, true);
-                }
-            }
-
-            // if we are not grounded, do not jump
-            Input.jump = false;
+            HandleMidAir();
         }
 
+        ApplyGravity();
+    }
+
+    private void HandleGrounded()
+    {
+        // reset the fall timeout timer
+        fallTimeoutDelta = fallTimeout;
+
+        // update animator if using character
+        if (hasAnimator)
+        {
+            Animator.SetBool(animIDJump, false);
+            Animator.SetBool(animIDFreeFall, false);
+        }
+
+        // stop our velocity dropping infinitely when grounded
+        if (verticalVelocity < 0.0f)
+        {
+            verticalVelocity = -2f;
+        }
+
+        // Jump
+        if (Input.jump && jumpTimeoutDelta <= 0.0f)
+        {
+            OnJump();
+        }
+
+        // jump timeout
+        if (jumpTimeoutDelta >= 0.0f)
+        {
+            jumpTimeoutDelta -= Time.deltaTime;
+        }
+    }
+
+    private void OnJump()
+    {
+        // the square root of H * -2 * G = how much velocity needed to reach desired height
+        verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+
+        // update animator if using character
+        if (hasAnimator)
+        {
+            Animator.SetBool(animIDJump, true);
+        }
+    }
+
+    private void HandleMidAir()
+    {
+        // reset the jump timeout timer
+        jumpTimeoutDelta = jumpTimeout;
+
+        // fall timeout
+        if (fallTimeoutDelta >= 0.0f)
+        {
+            fallTimeoutDelta -= Time.deltaTime;
+        }
+        else
+        {
+            // update animator if using character
+            if (hasAnimator)
+            {
+                Animator.SetBool(animIDFreeFall, true);
+            }
+        }
+
+        // if we are not grounded, do not jump
+        Input.jump = false;
+    }
+
+    private void ApplyGravity()
+    {
         // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
-        if (verticalVelocity < terminalVelocity)
+        if (verticalVelocity < TERMINAL_VELOCITY)
         {
             verticalVelocity += gravity * Time.deltaTime;
         }
     }
+
+    //---------------- Grounded check ----------------
 
     private void GroundedCheck()
     {
@@ -243,16 +265,17 @@ public class ThirdPersonController : MonoBehaviour
 
         // note: Vector2's == operator uses approximation so is not floating point error prone, and is cheaper than magnitude
         // if there is no input, set the target speed to 0
-        if (Input.move == Vector2.zero) targetSpeed = 0.0f;
+        if (Input.move == Vector2.zero)
+        {
+            targetSpeed = 0.0f;
+        }
 
         // a reference to the players current horizontal velocity
         float currentHorizontalSpeed = new Vector3(Velocity.x, 0.0f, Velocity.z).magnitude;
-
-        float speedOffset = 0.1f;
         float inputMagnitude = Input.analogMovement ? Input.move.magnitude : 1f;
 
         // accelerate or decelerate to target speed
-        if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
+        if (currentHorizontalSpeed < targetSpeed - SPEED_OFFSET || currentHorizontalSpeed > targetSpeed + SPEED_OFFSET)
         {
             // creates curved result rather than a linear one giving a more organic speed change
             // note T in Lerp is clamped, so we don't need to clamp our speed
@@ -265,6 +288,7 @@ public class ThirdPersonController : MonoBehaviour
         {
             speed = targetSpeed;
         }
+
         animationBlend = Mathf.Lerp(animationBlend, targetSpeed, Time.deltaTime * speedChangeRate);
 
         // normalise input direction
@@ -315,12 +339,18 @@ public class ThirdPersonController : MonoBehaviour
 
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
     {
-        if (lfAngle < -360f) lfAngle += 360f;
-        if (lfAngle > 360f) lfAngle -= 360f;
+        if (lfAngle < -360f)
+        {
+            lfAngle += 360f;
+        }
+        if (lfAngle > 360f)
+        {
+            lfAngle -= 360f;
+        }
         return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 
-    //-------------------------------- Debug UI --------------------------------
+    //-------------------------------- Editor UI --------------------------------
 
     private void OnDrawGizmosSelected()
     {
