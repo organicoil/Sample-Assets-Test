@@ -1,36 +1,38 @@
 ﻿using UnityEditor;
 
-namespace StarterAssets
+namespace StarterAssets.Editor
 {
-    public static class ScriptingDefineUtils
+public static class ScriptingDefineUtils
+{
+
+    public static bool CheckScriptingDefine(string scriptingDefine)
     {
-        public static bool CheckScriptingDefine(string scriptingDefine)
-        {
-            BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            return defines.Contains(scriptingDefine);
-        }
+        BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+        return defines.Contains(scriptingDefine);
+    }
 
-        public static void SetScriptingDefine(string scriptingDefine)
+    public static void SetScriptingDefine(string scriptingDefine)
+    {
+        BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+        if (!defines.Contains(scriptingDefine))
         {
-            BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            if (!defines.Contains(scriptingDefine))
-            {
-                defines += $";{scriptingDefine}";
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
-            }
-        }
-
-        public static void RemoveScriptingDefine(string scriptingDefine)
-        {
-            BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            if (defines.Contains(scriptingDefine))
-            {
-                string newDefines = defines.Replace(scriptingDefine, "");
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, newDefines);
-            }
+            defines += $";{scriptingDefine}";
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
         }
     }
+
+    public static void RemoveScriptingDefine(string scriptingDefine)
+    {
+        BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+        if (defines.Contains(scriptingDefine))
+        {
+            string newDefines = defines.Replace(scriptingDefine, "");
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, newDefines);
+        }
+    }
+
+}
 }

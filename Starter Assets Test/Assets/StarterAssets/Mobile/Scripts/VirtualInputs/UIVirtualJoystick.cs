@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
+namespace StarterAssets.Mobile.VirtualInputs
+{
 public class UIVirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     
@@ -65,7 +65,7 @@ public class UIVirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandle
 
         if(handleRect)
         {
-             UpdateHandleRectPosition(Vector2.zero);
+            UpdateHandleRectPosition(Vector2.zero);
         }
     }
 
@@ -111,4 +111,5 @@ public class UIVirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandle
         return -value;
     }
     
+}
 }

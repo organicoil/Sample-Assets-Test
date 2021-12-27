@@ -2,34 +2,36 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace StarterAssets
+namespace StarterAssets.Editor
 {
-    public partial class StarterAssetsDeployMenu : ScriptableObject
+public partial class StarterAssetsDeployMenu : ScriptableObject
+{
+
+    // prefab paths
+    private const string FirstPersonPrefabPath = "/FirstPersonController/Prefabs/";
+
+    #if STARTER_ASSETS_PACKAGES_CHECKED
+    /// <summary>
+    /// Check the capsule, main camera, cinemachine virtual camera, camera target and references
+    /// </summary>
+    [MenuItem(StarterAssetsDeployMenu.MenuRoot + "/Reset First Person Controller", false)]
+    static void ResetFirstPersonControllerCapsule()
     {
-        // prefab paths
-        private const string FirstPersonPrefabPath = "/FirstPersonController/Prefabs/";
+        var firstPersonControllers = FindObjectsOfType<FirstPersonController.FirstPersonController>();
+        var player = firstPersonControllers.FirstOrDefault(controller => controller.CompareTag(StarterAssetsDeployMenu.PlayerTag));
+        GameObject playerGameObject;
 
-#if STARTER_ASSETS_PACKAGES_CHECKED
-        /// <summary>
-        /// Check the capsule, main camera, cinemachine virtual camera, camera target and references
-        /// </summary>
-        [MenuItem(MenuRoot + "/Reset First Person Controller", false)]
-        static void ResetFirstPersonControllerCapsule()
-        {
-            var firstPersonControllers = FindObjectsOfType<FirstPersonController>();
-            var player = firstPersonControllers.FirstOrDefault(controller => controller.CompareTag(PlayerTag));
-            GameObject playerGameObject;
-            
-            // player
-            if (player == null)
-                HandleInstantiatingPrefab(StarterAssetsPath + FirstPersonPrefabPath,
-                    PlayerCapsulePrefabName, out playerGameObject);
-            else
-                playerGameObject = player.gameObject;
+        // player
+        if (player == null)
+            StarterAssetsDeployMenu.HandleInstantiatingPrefab(StarterAssetsDeployMenu.StarterAssetsPath + FirstPersonPrefabPath,
+                                                              StarterAssetsDeployMenu.PlayerCapsulePrefabName, out playerGameObject);
+        else
+            playerGameObject = player.gameObject;
 
-            // cameras
-            CheckCameras(FirstPersonPrefabPath, playerGameObject.transform);
-        }
-#endif
+        // cameras
+        StarterAssetsDeployMenu.CheckCameras(FirstPersonPrefabPath, playerGameObject.transform);
     }
+    #endif
+
+}
 }
