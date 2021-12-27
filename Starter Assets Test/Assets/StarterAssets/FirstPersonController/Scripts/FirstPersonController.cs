@@ -158,7 +158,8 @@ public class FirstPersonController : MonoBehaviour
 
             // round speed to 3 decimal places
             _speed = Mathf.Round(_speed * 1000f) / 1000f;
-        } else
+        }
+        else
         {
             _speed = targetSpeed;
         }
@@ -203,7 +204,8 @@ public class FirstPersonController : MonoBehaviour
             {
                 _jumpTimeoutDelta -= Time.deltaTime;
             }
-        } else
+        }
+        else
         {
             // reset the jump timeout timer
             _jumpTimeoutDelta = JumpTimeout;

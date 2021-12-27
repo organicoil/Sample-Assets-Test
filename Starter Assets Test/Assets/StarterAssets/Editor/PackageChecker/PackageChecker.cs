@@ -42,7 +42,8 @@ public static class PackageChecker
             {
                 Debug.LogError(
                                "[Auto Package] : Couldn't find the packages list. Be sure there is a file called PackageImportList in your project");
-            } else
+            }
+            else
             {
                 packagesToAdd = new List<PackageEntry>();
 

@@ -80,7 +80,8 @@ public partial class StarterAssetsDeployMenu : ScriptableObject
                                       CinemachineVirtualCameraName,
                                       out GameObject vcamPrefab);
             _cinemachineVirtualCamera = vcamPrefab;
-        } else
+        }
+        else
         {
             _cinemachineVirtualCamera = vcam;
         }
@@ -107,7 +108,8 @@ public partial class StarterAssetsDeployMenu : ScriptableObject
             // if there are no MainCameras, add one
             HandleInstantiatingPrefab(StarterAssetsPath + prefabPath, MainCameraPrefabName,
                                       out _);
-        } else
+        }
+        else
         {
             // make sure the found camera has a cinemachine brain (we only need 1)
             if (!mainCameras[0].TryGetComponent(out CinemachineBrain cinemachineBrain))

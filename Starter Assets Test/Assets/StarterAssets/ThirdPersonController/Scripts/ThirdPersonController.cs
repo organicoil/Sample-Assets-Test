@@ -98,7 +98,7 @@ public class ThirdPersonController : MonoBehaviour
     private void Awake()
     {
         MainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-        
+
         Animator = GetComponent<Animator>();
         Controller = GetComponent<CharacterController>();
         Input = GetComponent<StarterAssetsInputs>();
@@ -192,7 +192,8 @@ public class ThirdPersonController : MonoBehaviour
 
             // round speed to 3 decimal places
             speed = Mathf.Round(speed * 1000f) / 1000f;
-        } else
+        }
+        else
         {
             speed = targetSpeed;
         }
@@ -263,7 +264,8 @@ public class ThirdPersonController : MonoBehaviour
             {
                 jumpTimeoutDelta -= Time.deltaTime;
             }
-        } else
+        }
+        else
         {
             // reset the jump timeout timer
             jumpTimeoutDelta = jumpTimeout;
@@ -272,7 +274,8 @@ public class ThirdPersonController : MonoBehaviour
             if (fallTimeoutDelta >= 0.0f)
             {
                 fallTimeoutDelta -= Time.deltaTime;
-            } else
+            }
+            else
             {
                 // update animator if using character
                 if (hasAnimator)

@@ -53,7 +53,8 @@ public class ReadmeEditor : UnityEditor.Editor
             Selection.objects = new UnityEngine.Object[] {readmeObject};
 
             return (Readme) readmeObject;
-        } else
+        }
+        else
         {
             Debug.Log("Couldn't find a readme");
             return null;
